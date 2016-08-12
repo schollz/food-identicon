@@ -6,7 +6,12 @@ import (
 	"image/draw"
 	"image/jpeg"
 	"io/ioutil"
+	"log"
+	"math/rand"
 	"os"
+	"path"
+	"path/filepath"
+	"strings"
 )
 
 var (
@@ -31,19 +36,52 @@ func loadImages(fileNames []string) []image.Image {
 	return images
 }
 
-func main() {
-	fileNames := []string{
-		"./resized/ingredients/apples/aplle.jpg",
-		"./resized/ingredients/apples/aplle.jpg",
-		"./resized/ingredients/apples/aplle.jpg",
-		"./resized/ingredients/apples/aplle.jpg",
-		"./resized/ingredients/apples/aplle.jpg",
-		"./resized/ingredients/apples/aplle.jpg",
-		"./resized/ingredients/apples/aplle.jpg",
+// exists returns whether the given file or directory exists or not
+// from http://stackoverflow.com/questions/10510691/how-to-check-whether-a-file-or-directory-denoted-by-a-path-exists-in-golang
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
 	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+func getFileNames(ingredients []string) []string {
+	var ingredientImages []string
+	for _, ingredient := range ingredients {
+		ingredientFolder := strings.Join(strings.Split(strings.TrimSpace(ingredient), " "), "-")
+		if !exists(path.Join("resized", "ingredients", ingredientFolder)) {
+			continue
+		}
+		fileList := []string{}
+		err := filepath.Walk(path.Join("resized", "ingredients", ingredientFolder), func(path string, f os.FileInfo, err error) error {
+			if strings.Contains(path, ".jpg") || strings.Contains(path, ".JPG") {
+				fileList = append(fileList, path)
+			}
+			return nil
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+		if len(fileList) > 0 {
+			ingredientImages = append(ingredientImages, fileList[rand.Intn(len(fileList))])
+		}
+	}
+	return ingredientImages
+}
+
+func main() {
+	fileNames := getFileNames([]string{
+		"limejuice", "liquid smoke", "macaroni",
+		"apple", "banana", "cinnamon",
+		"mango", "maple syrup", "margarine",
+	})
 	images := loadImages(fileNames)
 	img := stitch(images)
 	b := bytes.NewBuffer(nil)
 	jpeg.Encode(b, img, nil)
-	ioutil.WriteFile("./new.jpg", b.Bytes(), 0644)
+	ioutil.WriteFile("./a.jpg", b.Bytes(), 0644)
 }
