@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/jpeg"
 	"log"
+	"math/rand"
 	"os"
 	"path"
 	"path/filepath"
@@ -25,8 +26,7 @@ func exists(path string) bool {
 	return true
 }
 
-func main() {
-
+func resizeEverything() {
 	searchDir := "./ingredients/"
 
 	fileList := []string{}
@@ -63,7 +63,7 @@ func main() {
 
 		// resize to width 100 using Lanczos resampling
 		// and preserve aspect ratio
-		m := resize.Resize(100, 67, img, resize.Lanczos3)
+		m := resize.Resize(100, 100, img, resize.Lanczos3)
 
 		out, err := os.Create(path.Join("resized", f))
 		if err != nil {
@@ -75,4 +75,24 @@ func main() {
 		jpeg.Encode(out, m, nil)
 
 	}
+}
+
+func getFileNames(ingredientImages []string{}) {
+	for _, ingredient := range ingredients {
+		ingredientFolder := strings.Join(strings.Split(strings.TrimSpace(ingredient), " "), "-")
+		if !exists(path.Join("resized", "ingredients", ingredientFolder)) {
+			continue
+		}
+		fileList := []string{}
+		err := filepath.Walk(path.Join("resized", "ingredients", ingredientFolder), func(path string, f os.FileInfo, err error) error {
+			fileList = append(fileList, path)
+			return nil
+		})
+		ingredientImages = append(ingredientImages, fileList[rand.Intn(len(fileList))])
+	}
+}
+
+func main() {
+	// ingredients := []string{"olive oil", "butter", "flour", "baking soda"}
+	resizeEverything()
 }
