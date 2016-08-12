@@ -13,16 +13,22 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/disintegration/gift"
 )
 
 var (
 	zero = image.Point{0, 0}
 )
 
+func getPattern(i int) func(i int) image.Point {
+	return func(i int) image.Point { return image.Point{(i % 3) * 100, (i / 3) * 100} }
+}
+
 func stitch(images []image.Image) image.Image {
 	img := image.NewRGBA(image.Rect(0, 0, 300, 300))
 	for i, simg := range images {
-		draw.Draw(img, simg.Bounds().Add(image.Point{(i % 3) * 100, (i / 3) * 100}), simg, zero, draw.Src)
+		draw.Draw(img, simg.Bounds().Add(getPattern(len(images))(i)), simg, zero, draw.Src)
 	}
 	return img
 }
@@ -91,7 +97,13 @@ func main() {
 	})
 	images := loadImages(fileNames)
 	img := stitch(images)
+	g := gift.New(
+		gift.Sepia(60),
+		gift.Saturation(-20),
+	)
+	post := image.NewRGBA(img.Bounds())
+	g.Draw(post, img)
 	b := bytes.NewBuffer(nil)
-	jpeg.Encode(b, img, nil)
+	jpeg.Encode(b, post, nil)
 	ioutil.WriteFile("./a.jpg", b.Bytes(), 0644)
 }
