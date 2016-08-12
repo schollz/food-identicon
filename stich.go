@@ -12,6 +12,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 var (
@@ -74,10 +75,12 @@ func getFileNames(ingredients []string) []string {
 }
 
 func main() {
+	rand.Seed(time.Now().Unix())
 	fileNames := getFileNames([]string{
 		"limejuice", "liquid smoke", "macaroni",
 		"apple", "banana", "cinnamon",
 		"mango", "maple syrup", "margarine",
+		"garlic",
 	})
 	images := loadImages(fileNames)
 	img := stitch(images)
