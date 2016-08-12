@@ -31,10 +31,10 @@ func resizeEverything() {
 
 	fileList := []string{}
 	err := filepath.Walk(searchDir, func(path string, f os.FileInfo, err error) error {
-		if strings.Contains(path, "flour") {
-			fileList = append(fileList, path)
-			os.MkdirAll(filepath.Join("resized", path, "../"), os.ModePerm)
-		}
+		// if strings.Contains(path, "olive-oil") {
+		fileList = append(fileList, path)
+		os.MkdirAll(filepath.Join("resized", path, "../"), os.ModePerm)
+		// }
 		return nil
 	})
 	if err != nil {
@@ -105,6 +105,6 @@ func getFileNames(ingredients []string) []string {
 }
 
 func main() {
+	resizeEverything()
 	fmt.Println(getFileNames([]string{"olive oil", "butter", "flour", "baking soda", "zucchini", "almond milk"}))
-	// resizeEverything()
 }
