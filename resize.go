@@ -31,8 +31,10 @@ func resizeEverything() {
 
 	fileList := []string{}
 	err := filepath.Walk(searchDir, func(path string, f os.FileInfo, err error) error {
-		fileList = append(fileList, path)
-		os.MkdirAll(filepath.Join("resized", path, "../"), os.ModePerm)
+		if strings.Contains(path, "flour") {
+			fileList = append(fileList, path)
+			os.MkdirAll(filepath.Join("resized", path, "../"), os.ModePerm)
+		}
 		return nil
 	})
 	if err != nil {
@@ -43,9 +45,9 @@ func resizeEverything() {
 		if exists(path.Join("resized", f)) {
 			continue
 		}
-		fmt.Println(f)
 
-		if !strings.Contains(f, ".jpg") {
+		if strings.Contains(f, ".jpg") || strings.Contains(f, ".JPG") {
+		} else {
 			continue
 		}
 
@@ -60,6 +62,7 @@ func resizeEverything() {
 			continue
 		}
 		file.Close()
+		fmt.Println(f)
 
 		// resize to width 100 using Lanczos resampling
 		// and preserve aspect ratio
@@ -77,7 +80,8 @@ func resizeEverything() {
 	}
 }
 
-func getFileNames(ingredientImages []string{}) {
+func getFileNames(ingredients []string) []string {
+	var ingredientImages []string
 	for _, ingredient := range ingredients {
 		ingredientFolder := strings.Join(strings.Split(strings.TrimSpace(ingredient), " "), "-")
 		if !exists(path.Join("resized", "ingredients", ingredientFolder)) {
@@ -85,14 +89,22 @@ func getFileNames(ingredientImages []string{}) {
 		}
 		fileList := []string{}
 		err := filepath.Walk(path.Join("resized", "ingredients", ingredientFolder), func(path string, f os.FileInfo, err error) error {
-			fileList = append(fileList, path)
+			if strings.Contains(path, ".jpg") || strings.Contains(path, ".JPG") {
+				fileList = append(fileList, path)
+			}
 			return nil
 		})
-		ingredientImages = append(ingredientImages, fileList[rand.Intn(len(fileList))])
+		if err != nil {
+			log.Fatal(err)
+		}
+		if len(fileList) > 0 {
+			ingredientImages = append(ingredientImages, fileList[rand.Intn(len(fileList))])
+		}
 	}
+	return ingredientImages
 }
 
 func main() {
-	// ingredients := []string{"olive oil", "butter", "flour", "baking soda"}
-	resizeEverything()
+	fmt.Println(getFileNames([]string{"olive oil", "butter", "flour", "baking soda", "zucchini", "almond milk"}))
+	// resizeEverything()
 }
