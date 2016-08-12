@@ -71,16 +71,23 @@ func getFileNames(ingredients []string) []string {
 			ingredientImages = append(ingredientImages, fileList[rand.Intn(len(fileList))])
 		}
 	}
-	return ingredientImages
+	dest := make([]string, len(ingredientImages))
+	perm := rand.Perm(len(ingredientImages))
+	for i, v := range perm {
+		dest[v] = ingredientImages[i]
+	}
+	return dest
 }
 
 func main() {
+	// resizeEverything()
 	rand.Seed(time.Now().Unix())
 	fileNames := getFileNames([]string{
-		"limejuice", "liquid smoke", "macaroni",
-		"apple", "banana", "cinnamon",
-		"mango", "maple syrup", "margarine",
-		"garlic",
+		"italian sausage", "ground beef",
+		"onion", "garlic", "tomato", "tomatoes",
+		"tomato paste", "tomato sauce", "water",
+		"fennel seeds", "salt", "black pepper",
+		"parsley", "lasagna noodles",
 	})
 	images := loadImages(fileNames)
 	img := stitch(images)
