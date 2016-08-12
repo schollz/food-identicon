@@ -17,10 +17,10 @@ func resizeEverything() {
 
 	fileList := []string{}
 	err := filepath.Walk(searchDir, func(path string, f os.FileInfo, err error) error {
-		if strings.Contains(path, "flour") {
-			fileList = append(fileList, path)
-			os.MkdirAll(filepath.Join("resized", path, "../"), os.ModePerm)
-		}
+		// if strings.Contains(path, "olive-oil") {
+		fileList = append(fileList, path)
+		os.MkdirAll(filepath.Join("resized", path, "../"), os.ModePerm)
+		// }
 		return nil
 	})
 	if err != nil {
@@ -64,8 +64,4 @@ func resizeEverything() {
 		jpeg.Encode(out, m, nil)
 
 	}
-}
-
-func main() {
-	// resizeEverything()
 }
